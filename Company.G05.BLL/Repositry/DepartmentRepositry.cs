@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace Company.G05.BLL.Repositry
 {
-    internal class DepartmentRepositry : IDepartmentRepositry
+    public class DepartmentRepositry : IDepartmentRepositry
     {
         private readonly CompanyDbContext _context;
 
-        public DepartmentRepositry()
+
+        public DepartmentRepositry(CompanyDbContext context)
         {
-            _context = new CompanyDbContext();
+            _context = context;
         }
 
         public IEnumerable<Department> GetAll()
