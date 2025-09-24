@@ -9,42 +9,11 @@ using System.Threading.Tasks;
 
 namespace Company.G05.BLL.Repositry
 {
-    public class DepartmentRepositry : IDepartmentRepositry
+    public class DepartmentRepositry : GenericRepositry<Department>, IDepartmentRepositry
     {
-        private readonly CompanyDbContext _context;
-
-
-        public DepartmentRepositry(CompanyDbContext context)
+        public DepartmentRepositry(CompanyDbContext context) : base(context)
         {
-            _context = context;
-        }
-
-        public IEnumerable<Department> GetAll()
-        {
-            return _context.Departments.ToList();
-        }
-
-        public Department? Get(int id)
-        {
-            return _context.Departments.Find(id);
-        }
-
-        public int Add(Department model)
-        {
-            _context.Departments.Add(model);
-            return _context.SaveChanges();
-        }
-
-        public int Delete(Department model)
-        {
-            _context.Departments.Remove(model);
-            return _context.SaveChanges();
-        }
-
-        public int Update(Department model)
-        {
-            _context.Departments.Update(model);
-            return _context.SaveChanges();
+             
         }
     }
 }
