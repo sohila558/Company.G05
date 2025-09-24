@@ -72,16 +72,36 @@ namespace Company.G05.PL.Controllers
         [HttpGet]
         public IActionResult Edit(int? id)
         {
-            return Details(id, "Edit");
+            if (id is null) return BadRequest("Invalid Id !"); // 400
+
+            var employee = _employeeRepositry.Get(id.Value);
+
+            if (employee is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
+
+            var employeeDto = new EmployeeDTO()
+            {
+                Name = employee.Name,
+                Age = employee.Age,
+                Email = employee.Email,
+                Address = employee.Address,
+                Phone = employee.Phone,
+                Salary = employee.Salary,
+                IsActive = employee.IsActive,
+                IsDeleted = employee.IsDeleted,
+                CreateAt = employee.CreateAt,
+                HiringDate = employee.HiringDate
+            };
+
+            return View(employeeDto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int? id, Employee model)
+        public IActionResult Edit([FromRoute] int id, EmployeeDTO model)
         {
             var employee = new Employee()
             {
-                Id = id.Value,
+                Id = id,
                 Name = model.Name,
                 Age = model.Age,
                 Email = model.Email,
@@ -109,6 +129,12 @@ namespace Company.G05.PL.Controllers
         [HttpGet]
         public IActionResult Delete(int? id)
         {
+            if (id is null) return BadRequest("Invalid Id !"); // 400
+
+            var employee = _employeeRepositry.Get(id.Value);
+
+            if (employee is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
+
             return Details(id, "Delete");
         }
 
