@@ -79,11 +79,11 @@ namespace Company.G05.PL.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int id, CreateDepartmentDTO model)
+        public IActionResult Edit([FromRoute] int? id, CreateDepartmentDTO model)
         {
             var department = new Department()
             {
-                Id = id,
+                Id = id.Value,
                 Name = model.Name,
                 Code = model.Code,
                 CreateAt = model.CreateAt
