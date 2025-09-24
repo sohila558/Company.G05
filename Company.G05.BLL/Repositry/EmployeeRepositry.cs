@@ -10,42 +10,11 @@ using System.Threading.Tasks;
 
 namespace Company.G05.BLL.Repositry
 {
-    public class EmployeeRepositry : IEmployeeRepositry
+    public class EmployeeRepositry : GenericRepositry<Employee>, IEmployeeRepositry
     {
-        private readonly CompanyDbContext _context;
-
-        public EmployeeRepositry(CompanyDbContext context)
+        public EmployeeRepositry(CompanyDbContext context) : base(context) // Ask CLR to Create Object from CompanyDbContext
         {
-            _context = context;
+            
         }
-
-        public IEnumerable<Employee> GetAll()
-        {
-            return _context.Employees.ToList();
-        }
-
-        public Employee? Get(int id)
-        {
-            return _context.Employees.Find();
-        }
-
-        public int Add(Employee model)
-        {
-            _context.Employees.Add(model);
-            return _context.SaveChanges();
-        }
-
-        public int Update(Employee model)
-        {
-            _context.Employees.Update(model);
-            return _context.SaveChanges();
-        }
-
-        public int Delete(Employee model)
-        {
-            _context.Employees.Remove(model);
-            return _context.SaveChanges();
-        }
-
     }
 }
