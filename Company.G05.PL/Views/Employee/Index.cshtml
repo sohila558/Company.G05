@@ -1,12 +1,36 @@
 ﻿@model IEnumerable<Employee>
 @{
     ViewData["Title"] = "Index";
+    // ViewData["Message"];
+    // string? ViewDataMessage = ViewData["Message"] as string;
+    // string? ViewBagMessage = ViewBag.Message;
 }
 
-<h1>All Employee</h1>
+<h1>All Employees</h1>
 
 <br />
 <br />
+
+@*<div class="m-3 alert alert-danger">
+    <p>
+        @ViewData["Message"]
+    </p>
+</div>*@
+
+@* <div class="m-3 alert alert-danger">
+    <p>
+        @ViewBag.Message
+    </p>
+</div> *@
+
+@* @if(!string.IsNullOrEmpty(TempData["Message"] as string))
+{
+    <div class="m-3 alert alert-info">
+        <p>
+            @TempData["Message"]
+        </p>
+    </div>
+} *@
 
 <a asp-action="Create" asp-controller="Employee" class="btn btn-primary">Create Employee</a>
 
@@ -28,6 +52,7 @@
                 <th>IsDeleted</th>
                 <th>@Html.DisplayNameFor(E => E.HiringDate)</th>
                 <th>@Html.DisplayNameFor(E => E.CreateAt)</th>
+                <th>Department</th>
                 <th>Details</th>
                 <th>Update</th>
                 <th>Delete</th>
@@ -48,6 +73,14 @@
                     <td>@item.IsDeleted</td>
                     <td>@item.HiringDate</td>
                     <td>@item.CreateAt</td>
+                    @if(item.Department is null)
+                    {
+                        <td>No Department</td>
+                    }
+                    else
+                    {
+                        <td>@item.Department.Name</td>
+                    }
                     <td>
                         <a asp-action="Details" asp-route-id ="@item.Id" class="btn btn-warning">Details</a>
                     </td>

@@ -9,21 +9,38 @@ namespace Company.G05.PL.Controllers
     public class EmployeeController : Controller
     {
         private readonly IEmployeeRepositry _employeeRepositry;
-        public EmployeeController(IEmployeeRepositry employeeRepositry)
+        private readonly IDepartmentRepositry _departmentRepositry;
+
+        public EmployeeController(IEmployeeRepositry employeeRepositry, IDepartmentRepositry departmentRepositry)
         {
             _employeeRepositry = employeeRepositry;
+            _departmentRepositry = departmentRepositry;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
             var employees = _employeeRepositry.GetAll();
+
+            // Dictionary :
+            // 1. ViewData : Transfer Extra Information From Controller (Action) To View
+
+            //ViewData["Message"] = "Hello From ViewData";
+
+            // 2. ViewBag  : Transfer Extra Information From Controller (Action) To View
+
+            //ViewBag.Message = "Hello From ViewBag";
+
+            // 3. TempData
+
             return View(employees);
         }
 
         [HttpGet]
         public IActionResult Create()
         {
+            var departments = _departmentRepositry.GetAll();
+            ViewData["departments"] = departments;
             return View();
         }
 
@@ -43,13 +60,15 @@ namespace Company.G05.PL.Controllers
                     IsActive = model.IsActive,
                     IsDeleted = model.IsDeleted,
                     CreateAt = model.CreateAt,
-                    HiringDate = model.HiringDate
+                    HiringDate = model.HiringDate,
+                    DepartmentId = model.DepartmentId
                 };
 
                 var Count = _employeeRepositry.Add(employee);
 
                 if (Count > 0)
                 {
+                    //TempData["Message"] = "Employee is Created";
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -72,6 +91,10 @@ namespace Company.G05.PL.Controllers
         [HttpGet]
         public IActionResult Edit(int? id)
         {
+            var departments = _departmentRepositry.GetAll();
+
+            ViewData["departments"] = departments;
+
             if (id is null) return BadRequest("Invalid Id !"); // 400
 
             var employee = _employeeRepositry.Get(id.Value);
@@ -97,7 +120,7 @@ namespace Company.G05.PL.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int id, EmployeeDTO model)
+        public IActionResult Edit([FromRoute] int id, Employee model)
         {
             var employee = new Employee()
             {
@@ -111,6 +134,7 @@ namespace Company.G05.PL.Controllers
                 IsActive = model.IsActive,
                 IsDeleted = model.IsDeleted,
                 CreateAt = model.CreateAt,
+                DepartmentId = model.DepartmentId,
                 HiringDate = model.HiringDate
             };
 
