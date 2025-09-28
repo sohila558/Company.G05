@@ -165,6 +165,8 @@ namespace Company.G05.PL.Controllers
         {
             var employee = _mapper.Map<Employee>(model);
 
+            employee.Id = id;
+
             if (ModelState.IsValid)
             {
                 var Count = _employeeRepositry.Delete(employee);

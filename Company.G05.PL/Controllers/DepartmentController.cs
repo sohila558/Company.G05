@@ -20,11 +20,19 @@ namespace Company.G05.PL.Controllers
         }
 
         [HttpGet] // GET: /Department/Index
-        public IActionResult Index()
+        public IActionResult Index(string? SearchInput)
         {
-            var departments = _departmentRepositry.GetAll();
+            IEnumerable<Department> department;
+            if (string.IsNullOrEmpty(SearchInput))
+            {
+                department = _departmentRepositry.GetAll();
+            }
+            else
+            {
+                department = _departmentRepositry.GetByName(SearchInput);
+            }
 
-            return View(departments);
+            return View(department);
         }
 
         [HttpGet]
@@ -79,13 +87,16 @@ namespace Company.G05.PL.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int? id, Department model)
+        public IActionResult Edit([FromRoute] int id, CreateDepartmentDTO model)
         {
 
             if (ModelState.IsValid)
             {
-                if (id != model.Id) return BadRequest();
-                var Count = _departmentRepositry.Update(model);
+
+                var department = _mapper.Map<Department>(model);
+                department.Id = id;
+
+                var Count = _departmentRepositry.Update(department);
 
                 if (Count > 0)
                 {
@@ -112,13 +123,9 @@ namespace Company.G05.PL.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Delete([FromRoute] int id, CreateDepartmentDTO model)
         {
-            var department = new Department()
-            {
-                Id = id,
-                Name = model.Name,
-                Code = model.Code,
-                CreateAt = model.CreateAt
-            };
+            var department = _mapper.Map<Department>(model);
+
+            department.Id = id;
 
             if (ModelState.IsValid)
             {

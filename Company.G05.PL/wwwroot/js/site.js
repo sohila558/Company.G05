@@ -19,3 +19,17 @@ InputSearch.addEventListener("keyup", () => {
     // Sending our request 
     xhr.send();
 });
+
+InputSearch.addEventListener("keyup", () => {
+    let xhr = new XMLHttpRequest();
+    let url = $`https://localhost:44373/Department ? SearchInput = ${InputSearch.value}`;
+    xhr.open("GET", url, true);
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log(this.responseText);
+        }
+    }
+    // Sending our request 
+    xhr.send();
+});
