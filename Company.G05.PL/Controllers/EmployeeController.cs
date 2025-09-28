@@ -1,4 +1,5 @@
-﻿using Company.G05.BLL.IRepositry;
+﻿using AutoMapper;
+using Company.G05.BLL.IRepositry;
 using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
@@ -10,30 +11,44 @@ namespace Company.G05.PL.Controllers
     {
         private readonly IEmployeeRepositry _employeeRepositry;
         private readonly IDepartmentRepositry _departmentRepositry;
+        private readonly IMapper _mapper;
 
-        public EmployeeController(IEmployeeRepositry employeeRepositry, IDepartmentRepositry departmentRepositry)
+        public EmployeeController(
+            IEmployeeRepositry employeeRepositry,
+            IDepartmentRepositry departmentRepositry,
+            IMapper mapper)
         {
             _employeeRepositry = employeeRepositry;
             _departmentRepositry = departmentRepositry;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(string? SearchInput)
         {
-            var employees = _employeeRepositry.GetAll();
+            IEnumerable<Employee> employees;
+            if (string.IsNullOrEmpty(SearchInput))
+            {
+                employees = _employeeRepositry.GetAll();
+            }
+            else
+            {
+                employees = _employeeRepositry.GetByName(SearchInput);
+            }
 
-            // Dictionary :
-            // 1. ViewData : Transfer Extra Information From Controller (Action) To View
 
-            //ViewData["Message"] = "Hello From ViewData";
+                // Dictionary :
+                // 1. ViewData : Transfer Extra Information From Controller (Action) To View
 
-            // 2. ViewBag  : Transfer Extra Information From Controller (Action) To View
+                //ViewData["Message"] = "Hello From ViewData";
 
-            //ViewBag.Message = "Hello From ViewBag";
+                // 2. ViewBag  : Transfer Extra Information From Controller (Action) To View
 
-            // 3. TempData
+                //ViewBag.Message = "Hello From ViewBag";
 
-            return View(employees);
+                // 3. TempData
+
+                return View(employees);
         }
 
         [HttpGet]
@@ -49,27 +64,36 @@ namespace Company.G05.PL.Controllers
         {
             if (ModelState.IsValid) // Server Side Validation
             {
-                var employee = new Employee()
+                try
                 {
-                    Name = model.Name,
-                    Age = model.Age,
-                    Email = model.Email,
-                    Address = model.Address,
-                    Phone = model.Phone,
-                    Salary = model.Salary,
-                    IsActive = model.IsActive,
-                    IsDeleted = model.IsDeleted,
-                    CreateAt = model.CreateAt,
-                    HiringDate = model.HiringDate,
-                    DepartmentId = model.DepartmentId
-                };
+                    // Manual Mapping
+                    //var employee = new Employee()
+                    //{
+                    //    Name = model.Name,
+                    //    Age = model.Age,
+                    //    Email = model.Email,
+                    //    Address = model.Address,
+                    //    Phone = model.Phone,
+                    //    Salary = model.Salary,
+                    //    IsActive = model.IsActive,
+                    //    IsDeleted = model.IsDeleted,
+                    //    CreateAt = model.CreateAt,
+                    //    HiringDate = model.HiringDate,
+                    //    DepartmentId = model.DepartmentId
+                    //};
 
-                var Count = _employeeRepositry.Add(employee);
+                    var employee = _mapper.Map<Employee>(model);
+                    var Count = _employeeRepositry.Add(employee);
 
-                if (Count > 0)
+                    if (Count > 0)
+                    {
+                        //TempData["Message"] = "Employee is Created";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                catch(Exception e)
                 {
-                    //TempData["Message"] = "Employee is Created";
-                    return RedirectToAction(nameof(Index));
+                    Console.WriteLine(e.Message);
                 }
             }
 
@@ -101,19 +125,7 @@ namespace Company.G05.PL.Controllers
 
             if (employee is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
 
-            var employeeDto = new EmployeeDTO()
-            {
-                Name = employee.Name,
-                Age = employee.Age,
-                Email = employee.Email,
-                Address = employee.Address,
-                Phone = employee.Phone,
-                Salary = employee.Salary,
-                IsActive = employee.IsActive,
-                IsDeleted = employee.IsDeleted,
-                CreateAt = employee.CreateAt,
-                HiringDate = employee.HiringDate
-            };
+            var employeeDto = _mapper.Map<EmployeeDTO>(employee); 
 
             return View(employeeDto);
         }
@@ -122,25 +134,10 @@ namespace Company.G05.PL.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit([FromRoute] int id, Employee model)
         {
-            var employee = new Employee()
-            {
-                Id = id,
-                Name = model.Name,
-                Age = model.Age,
-                Email = model.Email,
-                Address = model.Address,
-                Phone = model.Phone,
-                Salary = model.Salary,
-                IsActive = model.IsActive,
-                IsDeleted = model.IsDeleted,
-                CreateAt = model.CreateAt,
-                DepartmentId = model.DepartmentId,
-                HiringDate = model.HiringDate
-            };
-
             if (ModelState.IsValid)
             {
-                var count = _employeeRepositry.Update(employee);
+                if (id != model.Id) return BadRequest();
+                var count = _employeeRepositry.Update(model);
 
                 if (count > 0)
                 {
@@ -153,11 +150,11 @@ namespace Company.G05.PL.Controllers
         [HttpGet]
         public IActionResult Delete(int? id)
         {
-            if (id is null) return BadRequest("Invalid Id !"); // 400
+            //if (id is null) return BadRequest("Invalid Id !"); // 400
 
-            var employee = _employeeRepositry.Get(id.Value);
+            //var employee = _employeeRepositry.Get(id.Value);
 
-            if (employee is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
+            //if (employee is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
 
             return Details(id, "Delete");
         }
@@ -166,20 +163,9 @@ namespace Company.G05.PL.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Delete([FromRoute] int id, EmployeeDTO model)
         {
-            var employee = new Employee()
-            {
-                Id = id,
-                Name = model.Name,
-                Age = model.Age,
-                Email = model.Email,
-                Address = model.Address,
-                Phone = model.Phone,
-                Salary = model.Salary,
-                IsActive = model.IsActive,
-                IsDeleted = model.IsDeleted,
-                CreateAt = model.CreateAt,
-                HiringDate = model.HiringDate
-            };
+            var employee = _mapper.Map<Employee>(model);
+
+            employee.Id = id;
 
             if (ModelState.IsValid)
             {
