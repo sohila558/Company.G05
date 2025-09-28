@@ -1,4 +1,5 @@
-﻿using Company.G05.BLL.IRepositry;
+﻿using AutoMapper;
+using Company.G05.BLL.IRepositry;
 using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
@@ -9,11 +10,13 @@ namespace Company.G05.PL.Controllers
     public class DepartmentController : Controller
     {
         private readonly IDepartmentRepositry _departmentRepositry;
+        private readonly IMapper _mapper;
 
         // Ask CLR to Create Object From DepartmentRepositry
-        public DepartmentController(IDepartmentRepositry departmentRepositry)
+        public DepartmentController(IDepartmentRepositry departmentRepositry, IMapper mapper)
         {
             _departmentRepositry = departmentRepositry;
+            _mapper = mapper;
         }
 
         [HttpGet] // GET: /Department/Index
@@ -35,12 +38,7 @@ namespace Company.G05.PL.Controllers
         {
             if (ModelState.IsValid) // Server Side Validation
             {
-                var department = new Department()
-                {
-                    Code = model.Code,
-                    Name = model.Name,
-                    CreateAt = model.CreateAt
-                };
+                var department = _mapper.Map<Department>(model);
 
                 var Count = _departmentRepositry.Add(department);
 
@@ -74,31 +72,20 @@ namespace Company.G05.PL.Controllers
 
             if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
 
-            var departmentDto = new CreateDepartmentDTO()
-            {
-                Name = department.Name,
-                Code = department.Code,
-                CreateAt = department.CreateAt
-            };
+            var departmentDto = _mapper.Map<CreateDepartmentDTO>(department);
 
             return View(departmentDto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int? id, CreateDepartmentDTO model)
+        public IActionResult Edit([FromRoute] int? id, Department model)
         {
-            var department = new Department()
-            {
-                Id = id.Value,
-                Name = model.Name,
-                Code = model.Code,
-                CreateAt = model.CreateAt
-            };
 
             if (ModelState.IsValid)
             {
-                var Count = _departmentRepositry.Update(department);
+                if (id != model.Id) return BadRequest();
+                var Count = _departmentRepositry.Update(model);
 
                 if (Count > 0)
                 {
