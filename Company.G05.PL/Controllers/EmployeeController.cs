@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Company.G05.BLL;
 using Company.G05.BLL.IRepositry;
 using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Models;
@@ -9,17 +10,21 @@ namespace Company.G05.PL.Controllers
 {
     public class EmployeeController : Controller
     {
-        private readonly IEmployeeRepositry _employeeRepositry;
-        private readonly IDepartmentRepositry _departmentRepositry;
+        private readonly IUnitOfWork _unitOfWork;
+
+        //private readonly IEmployeeRepositry _employeeRepositry;
+        //private readonly IDepartmentRepositry _departmentRepositry;
         private readonly IMapper _mapper;
 
         public EmployeeController(
-            IEmployeeRepositry employeeRepositry,
-            IDepartmentRepositry departmentRepositry,
+            //IEmployeeRepositry employeeRepositry,
+            //IDepartmentRepositry departmentRepositry,
+            IUnitOfWork unitOfWork,
             IMapper mapper)
         {
-            _employeeRepositry = employeeRepositry;
-            _departmentRepositry = departmentRepositry;
+            //_employeeRepositry = employeeRepositry;
+            //_departmentRepositry = departmentRepositry;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -29,11 +34,11 @@ namespace Company.G05.PL.Controllers
             IEnumerable<Employee> employees;
             if (string.IsNullOrEmpty(SearchInput))
             {
-                employees = _employeeRepositry.GetAll();
+                employees = _unitOfWork.EmployeeRepositry.GetAll();
             }
             else
             {
-                employees = _employeeRepositry.GetByName(SearchInput);
+                employees = _unitOfWork.EmployeeRepositry.GetByName(SearchInput);
             }
 
 
@@ -54,7 +59,7 @@ namespace Company.G05.PL.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var departments = _departmentRepositry.GetAll();
+            var departments = _unitOfWork.DepartmentRepositry.GetAll();
             ViewData["departments"] = departments;
             return View();
         }
@@ -83,7 +88,8 @@ namespace Company.G05.PL.Controllers
                     //};
 
                     var employee = _mapper.Map<Employee>(model);
-                    var Count = _employeeRepositry.Add(employee);
+                    _unitOfWork.EmployeeRepositry.Add(employee);
+                    var Count = _unitOfWork.Complete();
 
                     if (Count > 0)
                     {
@@ -105,7 +111,7 @@ namespace Company.G05.PL.Controllers
         {
             if (id is null) return BadRequest("Invalid Id !");
 
-            var employee = _employeeRepositry.Get(id.Value);
+            var employee = _unitOfWork.EmployeeRepositry.Get(id.Value);
 
             if (employee is null) return NotFound(new { statusCode = 404, message = $"Employee with Id: {id} Not Found" });
 
@@ -115,13 +121,13 @@ namespace Company.G05.PL.Controllers
         [HttpGet]
         public IActionResult Edit(int? id)
         {
-            var departments = _departmentRepositry.GetAll();
+            var departments = _unitOfWork.DepartmentRepositry.GetAll();
 
             ViewData["departments"] = departments;
 
             if (id is null) return BadRequest("Invalid Id !"); // 400
 
-            var employee = _employeeRepositry.Get(id.Value);
+            var employee = _unitOfWork.EmployeeRepositry.Get(id.Value);
 
             if (employee is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
 
@@ -137,9 +143,10 @@ namespace Company.G05.PL.Controllers
             if (ModelState.IsValid)
             {
                 if (id != model.Id) return BadRequest();
-                var count = _employeeRepositry.Update(model);
+                _unitOfWork.EmployeeRepositry.Update(model);
+                var Count = _unitOfWork.Complete();
 
-                if (count > 0)
+                if (Count > 0)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -169,7 +176,8 @@ namespace Company.G05.PL.Controllers
 
             if (ModelState.IsValid)
             {
-                var Count = _employeeRepositry.Delete(employee);
+                _unitOfWork.EmployeeRepositry.Delete(employee);
+                var Count = _unitOfWork.Complete();
 
                 if (Count > 0)
                 {
