@@ -9,13 +9,15 @@ namespace Company.G05.PL.Controllers
 {
     public class DepartmentController : Controller
     {
-        private readonly IDepartmentRepositry _departmentRepositry;
+        //private readonly IDepartmentRepositry _departmentRepositry;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         // Ask CLR to Create Object From DepartmentRepositry
-        public DepartmentController(IDepartmentRepositry departmentRepositry, IMapper mapper)
+        public DepartmentController(/*IDepartmentRepositry departmentRepositry*/ IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _departmentRepositry = departmentRepositry;
+            //_departmentRepositry = departmentRepositry;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -25,11 +27,11 @@ namespace Company.G05.PL.Controllers
             IEnumerable<Department> department;
             if (string.IsNullOrEmpty(SearchInput))
             {
-                department = _departmentRepositry.GetAll();
+                department = _unitOfWork.DepartmentRepositry.GetAll();
             }
             else
             {
-                department = _departmentRepositry.GetByName(SearchInput);
+                department = _unitOfWork.DepartmentRepositry.GetByName(SearchInput);
             }
 
             return View(department);
@@ -48,9 +50,10 @@ namespace Company.G05.PL.Controllers
             {
                 var department = _mapper.Map<Department>(model);
 
-                var Count = _departmentRepositry.Add(department);
+                _unitOfWork.DepartmentRepositry.Add(department);
+                var Count = _unitOfWork.Complete();
 
-                if(Count > 0)
+                if (Count > 0)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -64,7 +67,7 @@ namespace Company.G05.PL.Controllers
         {
             if (id is null) return BadRequest("Invalid Id !"); // 400
 
-            var department = _departmentRepositry.Get(id.Value);
+            var department = _unitOfWork.DepartmentRepositry.Get(id.Value);
 
             if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
 
@@ -76,7 +79,7 @@ namespace Company.G05.PL.Controllers
         {
             if (id is null) return BadRequest("Invalid Id !"); // 400
 
-            var department = _departmentRepositry.Get(id.Value);
+            var department = _unitOfWork.DepartmentRepositry.Get(id.Value);
 
             if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
 
@@ -96,7 +99,8 @@ namespace Company.G05.PL.Controllers
                 var department = _mapper.Map<Department>(model);
                 department.Id = id;
 
-                var Count = _departmentRepositry.Update(department);
+                _unitOfWork.DepartmentRepositry.Update(department);
+                var Count = _unitOfWork.Complete();
 
                 if (Count > 0)
                 {
@@ -129,7 +133,8 @@ namespace Company.G05.PL.Controllers
 
             if (ModelState.IsValid)
             {
-                var Count = _departmentRepositry.Delete(department);
+                _unitOfWork.DepartmentRepositry.Delete(department);
+                var Count = _unitOfWork.Complete();
 
                 if (Count > 0)
                 {

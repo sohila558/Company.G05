@@ -1,4 +1,5 @@
 using AutoMapper;
+using Company.G05.BLL;
 using Company.G05.BLL.IRepositry;
 using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Data.Contexts;
@@ -18,6 +19,7 @@ namespace Company.G05.PL
             builder.Services.AddControllersWithViews(); // Register Built-In MVC Services
             builder.Services.AddScoped<IDepartmentRepositry, DepartmentRepositry>(); // Allow DI For DepartmentRepositry 
             builder.Services.AddScoped<IEmployeeRepositry, EmployeeRepositry>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddDbContext<CompanyDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
