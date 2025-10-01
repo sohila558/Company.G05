@@ -7,9 +7,10 @@
 <br />
 <br />
 
-<form asp-action="Delete">
+<form asp-action="Delete" enctype="multipart/form-data">
     
     <partial name="EmployeePartialView/_DeleteDetailsPartialView" />
+    <input asp-for="ImageName" hidden />
 
     <div>
         <input type="submit" value="Delete" asp-route-id="@Model.Id" class="btn btn-danger" />
