@@ -4,6 +4,7 @@ using Company.G05.BLL.IRepositry;
 using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
+using Company.G05.PL.Helper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Company.G05.PL.Controllers
@@ -71,21 +72,10 @@ namespace Company.G05.PL.Controllers
             {
                 try
                 {
-                    // Manual Mapping
-                    //var employee = new Employee()
-                    //{
-                    //    Name = model.Name,
-                    //    Age = model.Age,
-                    //    Email = model.Email,
-                    //    Address = model.Address,
-                    //    Phone = model.Phone,
-                    //    Salary = model.Salary,
-                    //    IsActive = model.IsActive,
-                    //    IsDeleted = model.IsDeleted,
-                    //    CreateAt = model.CreateAt,
-                    //    HiringDate = model.HiringDate,
-                    //    DepartmentId = model.DepartmentId
-                    //};
+                    if(model.Image is not null)
+                    {
+                        model.ImageName = DocumentSettings.UploadFile(model.Image, "images");
+                    }
 
                     var employee = _mapper.Map<Employee>(model);
                     _unitOfWork.EmployeeRepositry.Add(employee);
@@ -93,7 +83,7 @@ namespace Company.G05.PL.Controllers
 
                     if (Count > 0)
                     {
-                        //TempData["Message"] = "Employee is Created";
+                        TempData["Message"] = "Employee is Created";
                         return RedirectToAction(nameof(Index));
                     }
                 }
@@ -138,12 +128,27 @@ namespace Company.G05.PL.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int id, Employee model)
+        public IActionResult Edit([FromRoute] int id, EmployeeDTO model)
         {
             if (ModelState.IsValid)
             {
-                if (id != model.Id) return BadRequest();
-                _unitOfWork.EmployeeRepositry.Update(model);
+
+                if(model.ImageName is not null && model.Image is not null)
+                {
+                    DocumentSettings.DeleteFile(model.ImageName, "images");
+                }
+
+                if(model.Image is not null)
+                {
+                    model.ImageName = DocumentSettings.UploadFile(model.Image, "images");
+                }
+
+                var employee = _mapper.Map<Employee>(model);
+                employee.Id = id;
+
+                if (id != employee.Id) return BadRequest();
+
+                _unitOfWork.EmployeeRepositry.Update(employee);
                 var Count = _unitOfWork.Complete();
 
                 if (Count > 0)
@@ -181,6 +186,10 @@ namespace Company.G05.PL.Controllers
 
                 if (Count > 0)
                 {
+                    if(model.ImageName is not null)
+                    {
+                        DocumentSettings.DeleteFile(model.ImageName, "Images");
+                    }
                     return RedirectToAction(nameof(Index));
                 }
             }
