@@ -9,6 +9,6 @@ namespace Company.G05.BLL.IRepositry
 {
     public interface IDepartmentRepositry : IGenericRepositry<Department>
     {
-        List<Department> GetByName(string name);
+        Task<List<Department>> GetByNameAsync(string name);
     }
 }

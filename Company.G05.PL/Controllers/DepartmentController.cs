@@ -4,6 +4,7 @@ using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Company.G05.PL.Controllers
 {
@@ -22,16 +23,16 @@ namespace Company.G05.PL.Controllers
         }
 
         [HttpGet] // GET: /Department/Index
-        public IActionResult Index(string? SearchInput)
+        public async Task<IActionResult> Index(string? SearchInput)
         {
             IEnumerable<Department> department;
             if (string.IsNullOrEmpty(SearchInput))
             {
-                department = _unitOfWork.DepartmentRepositry.GetAll();
+                department = await _unitOfWork.DepartmentRepositry.GetAllAsync();
             }
             else
             {
-                department = _unitOfWork.DepartmentRepositry.GetByName(SearchInput);
+                department = await _unitOfWork.DepartmentRepositry.GetByNameAsync(SearchInput);
             }
 
             return View(department);
@@ -44,63 +45,14 @@ namespace Company.G05.PL.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(CreateDepartmentDTO  model)
+        public async Task<IActionResult> Create(CreateDepartmentDTO  model)
         {
             if (ModelState.IsValid) // Server Side Validation
             {
                 var department = _mapper.Map<Department>(model);
 
-                _unitOfWork.DepartmentRepositry.Add(department);
-                var Count = _unitOfWork.Complete();
-
-                if (Count > 0)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult Details([FromRoute]int? id, string viewName = "Details")
-        {
-            if (id is null) return BadRequest("Invalid Id !"); // 400
-
-            var department = _unitOfWork.DepartmentRepositry.Get(id.Value);
-
-            if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
-
-            return View(viewName, department);
-        }
-
-        [HttpGet]
-        public IActionResult Edit(int? id)
-        {
-            if (id is null) return BadRequest("Invalid Id !"); // 400
-
-            var department = _unitOfWork.DepartmentRepositry.Get(id.Value);
-
-            if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
-
-            var departmentDto = _mapper.Map<CreateDepartmentDTO>(department);
-
-            return View(departmentDto);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int id, CreateDepartmentDTO model)
-        {
-
-            if (ModelState.IsValid)
-            {
-
-                var department = _mapper.Map<Department>(model);
-                department.Id = id;
-
-                _unitOfWork.DepartmentRepositry.Update(department);
-                var Count = _unitOfWork.Complete();
+                await _unitOfWork.DepartmentRepositry.AddAsync(department);
+                var Count = await _unitOfWork.CompleteAsync();
 
                 if (Count > 0)
                 {
@@ -112,7 +64,56 @@ namespace Company.G05.PL.Controllers
         }
 
         [HttpGet]
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Details([FromRoute]int? id, string viewName = "Details")
+        {
+            if (id is null) return BadRequest("Invalid Id !"); // 400
+
+            var department = await _unitOfWork.DepartmentRepositry.GetAsync(id.Value);
+
+            if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
+
+            return View(viewName, department);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id is null) return BadRequest("Invalid Id !"); // 400
+
+            var department = await _unitOfWork.DepartmentRepositry.GetAsync(id.Value);
+
+            if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
+
+            var departmentDto = _mapper.Map<CreateDepartmentDTO>(department);
+
+            return View(departmentDto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit([FromRoute] int id, CreateDepartmentDTO model)
+        {
+
+            if (ModelState.IsValid)
+            {
+
+                var department = _mapper.Map<Department>(model);
+                department.Id = id;
+
+                _unitOfWork.DepartmentRepositry.Update(department);
+                var Count = await _unitOfWork.CompleteAsync();
+
+                if (Count > 0)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
         {
             //if (id is null) return BadRequest("Invalid Id !"); // 400
 
@@ -120,12 +121,12 @@ namespace Company.G05.PL.Controllers
 
             //if (department is null) return NotFound(new { statusCode = 404, message = $"Department with Id: {id} Not Found" });
 
-            return Details(id, "Delete");
+            return await Details(id, "Delete");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete([FromRoute] int id, CreateDepartmentDTO model)
+        public async Task<IActionResult> Delete([FromRoute] int id, CreateDepartmentDTO model)
         {
             var department = _mapper.Map<Department>(model);
 
@@ -134,7 +135,7 @@ namespace Company.G05.PL.Controllers
             if (ModelState.IsValid)
             {
                 _unitOfWork.DepartmentRepositry.Delete(department);
-                var Count = _unitOfWork.Complete();
+                var Count = await _unitOfWork.CompleteAsync();
 
                 if (Count > 0)
                 {

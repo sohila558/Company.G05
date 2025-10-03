@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Company.G05.BLL.IRepositry
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork : IAsyncDisposable
     {
         IDepartmentRepositry DepartmentRepositry { get; }
         IEmployeeRepositry EmployeeRepositry { get; }
-        int Complete();
+        Task<int> CompleteAsync();
     }
 }
