@@ -8,7 +8,7 @@ namespace Company.G05.PL.Helper
         public static bool SendEmail(Email email)
         {
             // Mail Server : Gmail
-            // SMTP
+            // SMTP : Simple Mail Transfer Protocol
 
             try
             {
