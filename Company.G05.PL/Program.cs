@@ -3,8 +3,10 @@ using Company.G05.BLL;
 using Company.G05.BLL.IRepositry;
 using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Data.Contexts;
+using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
 using Company.G05.PL.Mapping;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Company.G05.PL
@@ -32,6 +34,11 @@ namespace Company.G05.PL
             //builder.Services.AddTransient(); // Create Object Life Time Per Operation
             //builder.Services.AddSingleton(); // Create Object Life Time Per Application
 
+            builder.Services.AddIdentity<AppUser, IdentityRole>()
+                            .AddEntityFrameworkStores<CompanyDbContext>()
+                            .AddDefaultTokenProviders();
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -47,6 +54,7 @@ namespace Company.G05.PL
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
