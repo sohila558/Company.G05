@@ -8,7 +8,7 @@
 
 <div class="main-agileinfo">
 	<div class="agileits-top">
-		<div asp-validation-summary="All"></div>
+		<div asp-validation-summary="All" class="m-3 alert alert-info"></div>
 		<form asp-action="SignUp">
 			<input class="text" asp-for="UserName" placeholder="Username" required="">
 			<input class="text" asp-for="FirstName" placeholder="First Name" required="">
@@ -25,12 +25,10 @@
 			</div>
 			<input type="submit" value="SIGNUP">
 		</form>
-		<p>Don't have an Account? <a href="#"> Login Now!</a></p>
+		<p>Do you have an Account? <a asp-action="SignIn"> Login Now!</a></p>
 	</div>
 </div>
 @section ValidationSection{
-	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-
+	<partial name="_ValidationScriptsPartial" />
 }
 

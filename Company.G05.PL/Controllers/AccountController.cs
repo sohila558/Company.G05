@@ -1,5 +1,6 @@
 ﻿using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
+using Company.G05.PL.Helper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -9,13 +10,17 @@ namespace Company.G05.PL.Controllers
     public class AccountController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
 
-        public AccountController(UserManager<AppUser> userManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         #region SignUp
+
+        // P@ssW0rd
 
         [HttpGet]
         public IActionResult SignUp()
@@ -66,10 +71,95 @@ namespace Company.G05.PL.Controllers
 
         #region SignIn
 
+        // P@ssW0rd
+
+        [HttpGet]
+        public IActionResult SignIn()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SignIn(SignInDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var User = await _userManager.FindByEmailAsync(model.Email);
+                if(User is not null)
+                {
+                    var flag = await _userManager.CheckPasswordAsync(User, model.Password);
+                    if (flag)
+                    {
+                        // Sign In 
+                        var result = await _signInManager.PasswordSignInAsync(User, model.Password, model.RememberMe, false);
+                        if (result.Succeeded)
+                        {
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
+                        }
+                    }
+                }
+                ModelState.AddModelError("", "Invalid Login !");
+            }
+
+            return View(model);
+        }
         #endregion
 
         #region SignOut
 
         #endregion
+
+        #region Forget Password
+
+        [HttpGet]
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendResetPasswordURL(ForgetPasswordDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var User = await _userManager.FindByEmailAsync(model.Email);
+                if(User is not null)
+                {
+                    // Generate Token
+
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(User);
+
+                    // Create URL
+
+                    var url = Url.Action("ResetPasword", "Account", new { email = model.Email }, Request.Scheme);
+
+                    // Create Email
+                    var email = new Email()
+                    {
+                        To = model.Email,
+                        Subject = "Reset Password",
+                        Body = url
+                    };
+
+                    // Send Email
+                    var flag = EmailSittings.SendEmail(email);
+                    if (flag)
+                    {
+                        return RedirectToAction("CheckYourInbox"); 
+                    }
+                }
+            }
+            ModelState.AddModelError("", "Invalid Reset Password Operation !");
+            return View("ForgetPassword", model);
+        }
+
+        [HttpGet]
+        public IActionResult CheckYourInbox()
+        {
+            return View();
+        }
+
+        #endregion
+
     }
 }

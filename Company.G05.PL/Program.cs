@@ -35,7 +35,9 @@ namespace Company.G05.PL
             //builder.Services.AddSingleton(); // Create Object Life Time Per Application
 
             builder.Services.AddIdentity<AppUser, IdentityRole>()
-                            .AddEntityFrameworkStores<CompanyDbContext>();
+                            .AddEntityFrameworkStores<CompanyDbContext>()
+                            .AddDefaultTokenProviders();
+
 
             var app = builder.Build();
 
@@ -52,6 +54,7 @@ namespace Company.G05.PL
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
