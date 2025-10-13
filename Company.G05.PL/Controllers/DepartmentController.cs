@@ -3,21 +3,21 @@ using Company.G05.BLL.IRepositry;
 using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Company.G05.PL.Controllers
 {
+    [Authorize]
     public class DepartmentController : Controller
     {
-        //private readonly IDepartmentRepositry _departmentRepositry;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         // Ask CLR to Create Object From DepartmentRepositry
-        public DepartmentController(/*IDepartmentRepositry departmentRepositry*/ IUnitOfWork unitOfWork, IMapper mapper)
+        public DepartmentController(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            //_departmentRepositry = departmentRepositry;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }

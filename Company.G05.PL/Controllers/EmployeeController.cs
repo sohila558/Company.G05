@@ -5,27 +5,20 @@ using Company.G05.BLL.Repositry;
 using Company.G05.DAL.Models;
 using Company.G05.PL.DTOs;
 using Company.G05.PL.Helper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Company.G05.PL.Controllers
 {
+    [Authorize]
     public class EmployeeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        //private readonly IEmployeeRepositry _employeeRepositry;
-        //private readonly IDepartmentRepositry _departmentRepositry;
         private readonly IMapper _mapper;
 
-        public EmployeeController(
-            //IEmployeeRepositry employeeRepositry,
-            //IDepartmentRepositry departmentRepositry,
-            IUnitOfWork unitOfWork,
-            IMapper mapper)
+        public EmployeeController(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            //_employeeRepositry = employeeRepositry;
-            //_departmentRepositry = departmentRepositry;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }

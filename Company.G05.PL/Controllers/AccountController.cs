@@ -107,6 +107,13 @@ namespace Company.G05.PL.Controllers
 
         #region SignOut
 
+        [HttpGet]
+        public async Task<IActionResult> SignOut()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction(nameof(SignIn));
+        }
+
         #endregion
 
         #region Forget Password
@@ -131,7 +138,7 @@ namespace Company.G05.PL.Controllers
 
                     // Create URL
 
-                    var url = Url.Action("ResetPasword", "Account", new { email = model.Email }, Request.Scheme);
+                    var url = Url.Action("ResetPasword", "Account", new { email = model.Email, token }, Request.Scheme);
 
                     // Create Email
                     var email = new Email()
@@ -156,6 +163,43 @@ namespace Company.G05.PL.Controllers
         [HttpGet]
         public IActionResult CheckYourInbox()
         {
+            return View();
+        }
+
+        #endregion
+
+        #region Reset Password
+
+        [HttpGet]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            TempData["email"] = email;
+            TempData["token"] = token;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var email = TempData["email"] as string;
+                var token = TempData["token"] as string;
+
+                if (email is null || token is null) return BadRequest("Invalid Operations");
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if(user is not null)
+                {
+                    var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("SignIn");
+                    }
+                }
+
+                ModelState.AddModelError("", "Invalid Reset Password Operation");
+            }
             return View();
         }
 
