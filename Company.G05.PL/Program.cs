@@ -38,6 +38,10 @@ namespace Company.G05.PL
                             .AddEntityFrameworkStores<CompanyDbContext>()
                             .AddDefaultTokenProviders();
 
+            builder.Services.ConfigureApplicationCookie(config =>
+            {
+                config.LoginPath = "/Account/SignIn";
+            });
 
             var app = builder.Build();
 
