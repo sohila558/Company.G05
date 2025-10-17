@@ -138,7 +138,7 @@ namespace Company.G05.PL.Controllers
 
                     // Create URL
 
-                    var url = Url.Action("ResetPasword", "Account", new { email = model.Email, token }, Request.Scheme);
+                    var url = Url.Action("ResetPassword", "Account", new { email = model.Email, token }, Request.Scheme);
 
                     // Create Email
                     var email = new Email()

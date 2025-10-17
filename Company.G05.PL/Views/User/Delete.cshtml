@@ -1,0 +1,20 @@
+﻿@model UserToReturnDTO
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete User</h1>
+<br />
+<br />
+
+<form asp-action="Delete" enctype="multipart/form-data">
+    
+    <partial name="UserPartialView/_DeleteDetailsPartialView" />
+
+    <div>
+        <input type="submit" value="Delete" asp-route-id="@Model.Id" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-light">Back To list</a>
+    </div>
+
+</form>
+
