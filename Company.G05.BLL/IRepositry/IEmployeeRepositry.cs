@@ -9,6 +9,6 @@ namespace Company.G05.BLL.IRepositry
 {
     public interface IEmployeeRepositry : IGenericRepositry<Employee>
     {
-        List<Employee> GetByName(string name);
+        Task<List<Employee>> GetByNameAsync(string name);
     }
 }

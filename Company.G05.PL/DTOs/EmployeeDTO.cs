@@ -34,5 +34,7 @@ namespace Company.G05.PL.DTOs
 
         [DisplayName("Department")]
         public int? DepartmentId { get; set; }
+        public string? ImageName { get; set; }
+        public IFormFile? Image { get; set; } 
     }
 }

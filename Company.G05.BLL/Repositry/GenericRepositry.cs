@@ -19,40 +19,37 @@ namespace Company.G05.BLL.Repositry
             _context = context;
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             if(typeof(TEntity) == typeof(Employee))
             {
-                return (IEnumerable<TEntity>) _context.Employees.Include(E => E.Department).ToList();
+                return (IEnumerable<TEntity>) await _context.Employees.Include(E => E.Department).ToListAsync();
             }
-            return _context.Set<TEntity>().ToList();
+            return await _context.Set<TEntity>().ToListAsync();
         }
 
-        public TEntity? Get(int id)
+        public async Task<TEntity?> GetAsync(int id)
         {
             if (typeof(TEntity) == typeof(Employee))
             {
-                return  _context.Employees.Include(E => E.Department).FirstOrDefault(E => E.Id == id) as TEntity;
+                return await _context.Employees.Include(E => E.Department).FirstOrDefaultAsync(E => E.Id == id) as TEntity;
             }
-            return _context.Set<TEntity>().Find(id);
+            return await _context.Set<TEntity>().FindAsync(id);
         }
 
-        public int Add(TEntity model)
+        public async Task AddAsync(TEntity model)
         {
-            _context.Set<TEntity>().Add(model);
-            return _context.SaveChanges();
+            await _context.Set<TEntity>().AddAsync(model);
         }
 
-        public int Update(TEntity model)
+        public void Update(TEntity model)
         {
             _context.Set<TEntity>().Update(model);
-            return _context.SaveChanges();
         }
 
-        public int Delete(TEntity model)
+        public void Delete(TEntity model)
         {
             _context.Set<TEntity>().Remove(model);
-            return _context.SaveChanges();
         }
 
     }

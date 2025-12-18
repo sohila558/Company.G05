@@ -17,9 +17,9 @@ namespace Company.G05.BLL.Repositry
         {
             _context = context;
         }
-        public List<Department> GetByName(string name)
+        public async Task<List<Department>> GetByNameAsync(string name)
         {
-            return _context.Departments.Where(E => E.Name.ToLower().Contains(name.ToLower())).ToList();
+            return await _context.Departments.Where(E => E.Name.ToLower().Contains(name.ToLower())).ToListAsync();
         }
     }
 }
